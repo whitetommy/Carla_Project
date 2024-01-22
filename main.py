@@ -8,11 +8,24 @@ import numpy as np
 import carla
 
 from carla_utils import connect_to_carla, load_world, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
-from sensor_utils import create_camera_blueprint, spawn_camera_sensor, process_img
+from sensor_utils import create_camera_blueprint, spawn_camera_sensor
 from data_utils import read_columns_from_csv, convert_gps_to_relative_coordinates
 
 IM_WIDTH = 640
 IM_HEIGHT = 480
+ORG = (50,70)   # starting location of letter
+Font = cv2.FONT_ITALIC # shape of font
+str = 0
+
+def process_img(image):
+    text = "brake : " + str
+    i = np.array(image.raw_data)
+    i2 = i.reshape((IM_HEIGHT, IM_WIDTH, 4))
+    cv2.putText(i2, text, ORG, Font, 1, (255,0,0), 2)
+    i3 = i2[:, :, :3]
+    cv2.imshow("Camera View", i3)
+    cv2.waitKey(1)
+    return i3/255.0
 
 def control_vehicle(vehicle, rpm, speed, brake, steer):
     throttle = min(speed / 100.0, 1.0)
@@ -60,10 +73,16 @@ if __name__ == "__main__":
                 lon = float(columns_data['lon'][i])
                 lat = float(columns_data['lat'][i])
 
+                if brake == 1:
+                    str = "On"
+                else :
+                    str = "Off"
+                print(f"brake_status : {str}")
+
                 relative_x, relative_y = convert_gps_to_relative_coordinates(lon, lat)
                 print(f"Relative Coordinates: X={relative_x}, Y={relative_y}")
 
-                control_vehicle(vehicle, rpm, speed, brake, steer)    
+                control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)
     
     finally:
