@@ -35,6 +35,11 @@ def control_vehicle(vehicle, rpm, speed, brake, steer):
     control = carla.VehicleControl(throttle=throttle, brake=brake, steer=steer)
     vehicle.apply_control(control)
 
+    if brake == 0:
+        vehicle.set_light_state(carla.VehicleLightState.NONE)
+    else :
+        vehicle.set_light_state(carla.VehicleLightState.Brake)
+
 if __name__ == "__main__":
     actor_list = []
 
