@@ -24,7 +24,8 @@ sensor = spawn_camera_sensor(world, cam_bp, spawn_point, vehicle, process_img)
 actor_list.append(sensor)
 ```
 
-We can also see the front view of the car.
+<br><br/>
+We can also see the front view of the car.  
 ```
 def create_camera_blueprint(blueprint_library, image_size_x, image_size_y, fov):
     cam_bp = blueprint_library.find("sensor.camera.rgb")
@@ -40,7 +41,7 @@ def spawn_camera_sensor(world, blueprint, spawn_point, vehicle, callback_functio
     return sensor
 ```
 
-
+<br><br/>
 We have the function of converting the gps data to relative coordinates in Carla Map. In order to express the longitude and latitude like GPS in Carla Simulator, we need to know what the exact relative coordinates is in Carla Map.
 ```
 relative_x = (lon - 127.0) * 111000
