@@ -37,7 +37,7 @@ def control_vehicle(vehicle, rpm, speed, brake, steer):
     brake = min(max(brake, 0.0), 1.0)
     steer = np.clip(steer, -1.0, 1.0) # Data for car to move left and right side 
 
-    control = carla.VehicleControl(throttle=throttle, brake=brake, steer=steer)
+    control = carla.VehicleControl(throttle=throttle, steer=steer, brake=brake)
     vehicle.apply_control(control)
 
     if brake == 0:
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         actor_list.append(sensor)
 
         # Data
-        data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data
+        data_path = r'C:\Users\xinex\Desktop/newData.csv' # wherever users can set the path of data
         # column_names = ['speed', 'rpm', 'brake', 'steer', 'lon', 'lat']  
         column_names = ['speed', 'rpm', 'brake', 'lon', 'lat']
         columns_data = read_columns_from_csv(data_path, column_names)
@@ -93,16 +93,15 @@ if __name__ == "__main__":
                 relative_x, relative_y = convert_gps_to_relative_coordinates(lon, lat)
                 print(f"Relative Coordinates: X={relative_x}, Y={relative_y}")
 
-                """
+                
                 waypoints.append([relative_x, relative_y, speed])
                 controller = Controller2D(waypoints)
 
                 controller.update_values(relative_x, relative_y, 0.0, speed, 0.0, 0)
                 controller.update_controls()
                 steer = controller.get_commands()
-                """
-                # control_vehicle(vehicle, rpm, speed, brake, steer)  
-                control_vehicle(vehicle, rpm, speed, brake) 
+                
+                control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)
     
     finally:

@@ -6,7 +6,6 @@
 
 import cutils
 import numpy as np
-import math
 
 class Controller2D(object):
     def __init__(self, waypoints):
@@ -27,9 +26,9 @@ class Controller2D(object):
         self._pi                 = np.pi
         self._2pi                = 2.0 * np.pi
 
-    def update_values(self, relative_x, relative_y, yaw, speed, timestamp, frame):
-        self._current_x         = relative_x
-        self._current_y         = relative_y
+    def update_values(self, x, y, yaw, speed, timestamp, frame):
+        self._current_x         = x
+        self._current_y         = y
         self._current_yaw       = yaw
         self._current_speed     = speed
         self._current_timestamp = timestamp
@@ -79,90 +78,205 @@ class Controller2D(object):
         self._set_brake = brake
 
     def update_controls(self):
+        ######################################################
         # RETRIEVE SIMULATOR FEEDBACK
-        x = self._current_x #meter
-        y = self._current_y #meter
-        yaw = self._current_yaw #radian
-        v = self._current_speed #m/s
+        ######################################################
+        x               = self._current_x
+        y               = self._current_y
+        yaw             = self._current_yaw
+        v               = self._current_speed
         self.update_desired_speed()
-        v_desired = self._desired_speed #m/s
-        t = self._current_timestamp
-        waypoints = self._waypoints #x, y, v
-        throttle_output = 0 # 0~1
-        steer_output = 0 #-1.22~1.22(rad)
-        brake_output = 0 #0~1
+        v_desired       = self._desired_speed
+        t               = self._current_timestamp
+        waypoints       = self._waypoints
+        throttle_output = 0
+        steer_output    = 0
+        brake_output    = 0
 
+        ######################################################
+        ######################################################
         # MODULE 7: DECLARE USAGE VARIABLES HERE
-        self.vars.create_var('v_prev', 0.0) #velocity
-        self.vars.create_var('t_prev', 0.0) #dt = t_prev-t
-        self.vars.create_var('e_prev', 0.0) #Error : v_desired-v
-        self.vars.create_var('e_iprev', 0.0) #integral Error
-        self.vars.create_var('o_tprev', 0.0) #throttle output
-        self.vars.create_var('o_sprev', 0.0) #steer output
+        ######################################################
+        ######################################################
+        """
+            Use 'self.vars.create_var(<variable name>, <default value>)'
+            to create a persistent variable (not destroyed at each iteration).
+            This means that the value can be stored for use in the next
+            iteration of the control loop.
+
+            Example: Creation of 'v_previous', default value to be 0
+            self.vars.create_var('v_previous', 0.0)
+
+            Example: Setting 'v_previous' to be 1.0
+            self.vars.v_previous = 1.0
+
+            Example: Accessing the value from 'v_previous' to be used
+            throttle_output = 0.5 * self.vars.v_previous
+        """
+        self.vars.create_var('v_previous', 0.0)
+        self.vars.create_var('t_previous', 0.0)
+        self.vars.create_var('throttle_previous', 0.0)
+        self.vars.create_var('int_val', 0.0)
+        self.vars.create_var('last_error', 0.0)
+
+        
+        kp = 1
+        ki = 1
+        kd = 0.01
+
+        integral = 0.0
 
         # Skip the first frame to store previous values properly
         if self._start_control_loop:
-    
+            """
+                Controller iteration code block.
+
+                Controller Feedback Variables:
+                    x               : Current X position (meters)
+                    y               : Current Y position (meters)
+                    yaw             : Current yaw pose (radians)
+                    v               : Current forward speed (meters per second)
+                    t               : Current time (seconds)
+                    v_desired       : Current desired speed (meters per second)
+                                      (Computed as the speed to track at the
+                                      closest waypoint to the vehicle.)
+                    waypoints       : Current waypoints to track
+                                      (Includes speed to track at each x,y
+                                      location.)
+                                      Format: [[x0, y0, v0],
+                                               [x1, y1, v1],
+                                               ...
+                                               [xn, yn, vn]]
+                                      Example:
+                                          waypoints[2][1]: 
+                                          Returns the 3rd waypoint's y position
+
+                                          waypoints[5]:
+                                          Returns [x5, y5, v5] (6th waypoint)
+                
+                Controller Output Variables:
+                    throttle_output : Throttle output (0 to 1)
+                    steer_output    : Steer output (-1.22 rad to 1.22 rad)
+                    brake_output    : Brake output (0 to 1)
+            """
+
+            ######################################################
+            ######################################################
             # MODULE 7: IMPLEMENTATION OF LONGITUDINAL CONTROLLER HERE
-						# PID Controller
-
-            K_p = 1.0
-            K_i = 0.1
-            K_d = 0.01
-
-            dt = t-self.vars.t_prev
-
+            ######################################################
+            ######################################################
+            """
+                Implement a longitudinal controller here. Remember that you can
+                access the persistent variables declared above here. For
+                example, can treat self.vars.v_previous like a "global variable".
+            """
+            
+            # Change these outputs with the longitudinal controller. Note that
+            # brake_output is optional and is not required to pass the
+            # assignment, as the car will naturally slow down over time.
             throttle_output = 0
             brake_output    = 0
 
-            e_v = v_desired - v
-            i_v = self.vars.e_iprev + e_v*dt
-            d_v = (e_v - self.vars.e_prev) / dt
+            # pid control
+            st = t - self.vars.t_previous
 
-            accel = K_p * e_v + K_i*i_v + K_d * d_v
+            # error term
+            delta_v = v_desired - v
 
-            if(accel >0):
-                throttle_output = (np.tanh(accel) + 1)/2
-                
-                if(throttle_output - self.vars.o_tprev > 0.1):
-                    throttle_output = self.vars.o_tprev + 0.1
-            
+            # I
+            integral = self.vars.int_val + delta_v * st
+
+            # D
+            derivate = (delta_v - self.vars.last_error) / st
+
+            rst = kp * delta_v + ki * integral + kd * derivate
+
+            if rst > 0:
+                throttle_output = np.tanh(rst)
+                throttle_output = max(0.0, min(1.0, throttle_output))
+                if throttle_output - self.vars.throttle_previous > 0.1:
+                    throttle_output = self.vars.throttle_previous + 0.1
             else:
                 throttle_output = 0
 
+            ######################################################
+            ######################################################
             # MODULE 7: IMPLEMENTATION OF LATERAL CONTROLLER HERE
-						# PurePursuit
-
-            steer_output = 0
-            L = 2.7 #meter - Ford Mustang Wheelbase
-            min_ld = 10 #meter
-            K_pld = 0.8
-
-            x_desired = x-L*np.cos(yaw)/2
-            y_desired = y-L*np.sin(yaw)/2
-            l_d = max(min_ld, v*K_pld)
+            ######################################################
+            ######################################################
+            """
+                Implement a lateral controller here. Remember that you can
+                access the persistent variables declared above here. For
+                example, can treat self.vars.v_previous like a "global variable".
+            """
             
-            for i in waypoints:
-                dist = np.sqrt((i[0] - x_desired)**2 + (i[1] - y_desired)**2)
+            # Change the steer output with the lateral controller. 
+            steer_output = 0
 
-                if(dist>l_d):
-                    target = i
-                    break
-                else:
-                    target = waypoints[0]
-                
-            alpha = math.atan2(target[1] - y_desired, target[0]-x_desired)-yaw
-            delta = math.atan2(2*L*np.sin(alpha)/l_d)
-            steer_output = delta
+            # Use stanley controller for lateral control
+            # 0. spectify stanley params
+            k_e = 0.3
+            k_v = 10
 
+            # 1. calculate heading error
+            yaw_path = np.arctan2(waypoints[-1][1]-waypoints[0][1], waypoints[-1][0]-waypoints[0][0])
+            yaw_diff = yaw_path - yaw 
+            if yaw_diff > np.pi:
+                yaw_diff -= 2 * np.pi
+            if yaw_diff < - np.pi:
+                yaw_diff += 2 * np.pi
+
+            # 2. calculate crosstrack error
+            current_xy = np.array([x, y])
+            crosstrack_error = np.min(np.sum((current_xy - np.array(waypoints)[:, :2])**2, axis=1))
+
+            yaw_cross_track = np.arctan2(y-waypoints[0][1], x-waypoints[0][0])
+            yaw_path2ct = yaw_path - yaw_cross_track
+            if yaw_path2ct > np.pi:
+                yaw_path2ct -= 2 * np.pi
+            if yaw_path2ct < - np.pi:
+                yaw_path2ct += 2 * np.pi
+            if yaw_path2ct > 0:
+                crosstrack_error = abs(crosstrack_error)
+            else:
+                crosstrack_error = - abs(crosstrack_error)
+
+            yaw_diff_crosstrack = np.arctan(k_e * crosstrack_error / (k_v + v))
+            
+            print(crosstrack_error, yaw_diff, yaw_diff_crosstrack)
+
+            # 3. control low
+            steer_expect = yaw_diff + yaw_diff_crosstrack
+            if steer_expect > np.pi:
+                steer_expect -= 2 * np.pi
+            if steer_expect < - np.pi:
+                steer_expect += 2 * np.pi
+            steer_expect = min(1.22, steer_expect)
+            steer_expect = max(-1.22, steer_expect)
+
+            # 4. update
+            steer_output = steer_expect
+
+            #steer_output = 0.05
+
+            ######################################################
             # SET CONTROLS OUTPUT
+            ######################################################
             self.set_throttle(throttle_output)  # in percent (0 to 1)
             self.set_steer(steer_output)        # in rad (-1.22 to 1.22)
             self.set_brake(brake_output)        # in percent (0 to 1)
 
-        self.vars.v_prev = v  # Store forward speed to be used in next step
-        self.vars.t_prev = t
-        self.vars.e_prev = v_desired-v
-        self.vars.e_iprev = i_v
-        self.vars.o_tprev = throttle_output
-        self.vars.o_sprev = steer_output
+        ######################################################
+        ######################################################
+        # MODULE 7: STORE OLD VALUES HERE (ADD MORE IF NECESSARY)
+        ######################################################
+        ######################################################
+        """
+            Use this block to store old values (for example, we can store the
+            current x, y, and yaw values here using persistent variables for use
+            in the next iteration)
+        """
+        self.vars.v_previous = v  # Store forward speed to be used in next step
+        self.vars.t_previous = t
+        self.vars.int_val = integral
+        self.vars.throttle_previous = throttle_output
