@@ -32,14 +32,16 @@ def process_img(image):
     return i3/255.0
 
 # Car Control from rpm, speed, brake, steer
+
 def control_vehicle(vehicle, rpm, speed, brake, steer):
     throttle = min(speed / 100.0, 1.0) 
     brake = min(max(brake, 0.0), 1.0)
     steer = np.clip(steer, -1.0, 1.0) # Data for car to move left and right side 
 
-    control = carla.VehicleControl(throttle=throttle, brake=brake, steer=steer)
+    control = carla.VehicleControl(throttle=throttle, steer = steer, brake = brake)
     vehicle.apply_control(control)
 
+    #As long as we put the brake, brake light is gonna be red
     if brake == 0:
         vehicle.set_light_state(carla.VehicleLightState.NONE)
     else :
@@ -79,7 +81,7 @@ if __name__ == "__main__":
                 speed = float(columns_data['speed'][i])
                 rpm = float(columns_data['rpm'][i])
                 brake = float(columns_data['brake'][i])
-                # steer = float(columns_data['steer'][i])
+                # timestamp = float(columns_data['timestamp'])
 
                 lon = float(columns_data['lon'][i])
                 lat = float(columns_data['lat'][i])
@@ -93,16 +95,18 @@ if __name__ == "__main__":
                 relative_x, relative_y = convert_gps_to_relative_coordinates(lon, lat)
                 print(f"Relative Coordinates: X={relative_x}, Y={relative_y}")
 
-                """
+                
                 waypoints.append([relative_x, relative_y, speed])
                 controller = Controller2D(waypoints)
 
                 controller.update_values(relative_x, relative_y, 0.0, speed, 0.0, 0)
                 controller.update_controls()
-                steer = controller.get_commands()
-                """
-                # control_vehicle(vehicle, rpm, speed, brake, steer)  
-                control_vehicle(vehicle, rpm, speed, brake) 
+                controller.get_commands()
+
+                steer = controller.get_steer()
+                print(steer)
+
+                control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)
     
     finally:
