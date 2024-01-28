@@ -32,14 +32,16 @@ def process_img(image):
     return i3/255.0
 
 # Car Control from rpm, speed, brake, steer
+
 def control_vehicle(vehicle, rpm, speed, brake, steer):
     throttle = min(speed / 100.0, 1.0) 
     brake = min(max(brake, 0.0), 1.0)
     steer = np.clip(steer, -1.0, 1.0) # Data for car to move left and right side 
 
-    control = carla.VehicleControl(throttle=throttle, steer=steer, brake=brake)
+    control = carla.VehicleControl(throttle=throttle, steer = steer, brake = brake)
     vehicle.apply_control(control)
 
+    #As long as we put the brake, brake light is gonna be red
     if brake == 0:
         vehicle.set_light_state(carla.VehicleLightState.NONE)
     else :
@@ -69,7 +71,7 @@ if __name__ == "__main__":
         actor_list.append(sensor)
 
         # Data
-        data_path = r'C:\Users\xinex\Desktop/newData.csv' # wherever users can set the path of data
+        data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data
         # column_names = ['speed', 'rpm', 'brake', 'steer', 'lon', 'lat']  
         column_names = ['speed', 'rpm', 'brake', 'lon', 'lat']
         columns_data = read_columns_from_csv(data_path, column_names)
@@ -79,7 +81,7 @@ if __name__ == "__main__":
                 speed = float(columns_data['speed'][i])
                 rpm = float(columns_data['rpm'][i])
                 brake = float(columns_data['brake'][i])
-                # steer = float(columns_data['steer'][i])
+                # timestamp = float(columns_data['timestamp'])
 
                 lon = float(columns_data['lon'][i])
                 lat = float(columns_data['lat'][i])
@@ -99,8 +101,11 @@ if __name__ == "__main__":
 
                 controller.update_values(relative_x, relative_y, 0.0, speed, 0.0, 0)
                 controller.update_controls()
-                steer = controller.get_commands()
-                
+                controller.get_commands()
+
+                steer = controller.get_steer()
+                print(steer)
+
                 control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)
     

@@ -1,9 +1,3 @@
-#pid_utils.py
-
-"""
-2D Controller Class to be used for the CARLA waypoint follower demo.
-"""
-
 import cutils
 import numpy as np
 
@@ -72,6 +66,9 @@ class Controller2D(object):
         steer           = np.fmax(np.fmin(input_steer, 1.0), -1.0)
         self._set_steer = steer
 
+    def get_steer(self):
+        return self._set_steer
+
     def set_brake(self, input_brake):
         # Clamp the steering command to valid bounds
         brake           = np.fmax(np.fmin(input_brake, 1.0), 0.0)
@@ -123,14 +120,11 @@ class Controller2D(object):
         kp = 1
         ki = 1
         kd = 0.01
-
-        integral = 0.0
-
+        integral = 0
         # Skip the first frame to store previous values properly
         if self._start_control_loop:
             """
                 Controller iteration code block.
-
                 Controller Feedback Variables:
                     x               : Current X position (meters)
                     y               : Current Y position (meters)
@@ -150,7 +144,6 @@ class Controller2D(object):
                                       Example:
                                           waypoints[2][1]: 
                                           Returns the 3rd waypoint's y position
-
                                           waypoints[5]:
                                           Returns [x5, y5, v5] (6th waypoint)
                 
@@ -198,7 +191,6 @@ class Controller2D(object):
                     throttle_output = self.vars.throttle_previous + 0.1
             else:
                 throttle_output = 0
-
             ######################################################
             ######################################################
             # MODULE 7: IMPLEMENTATION OF LATERAL CONTROLLER HERE
@@ -209,8 +201,7 @@ class Controller2D(object):
                 access the persistent variables declared above here. For
                 example, can treat self.vars.v_previous like a "global variable".
             """
-            
-            # Change the steer output with the lateral controller. 
+           # Change the steer output with the lateral controller. 
             steer_output = 0
 
             # Use stanley controller for lateral control
