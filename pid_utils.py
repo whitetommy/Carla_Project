@@ -74,6 +74,8 @@ class Controller2D(object):
         brake           = np.fmax(np.fmin(input_brake, 1.0), 0.0)
         self._set_brake = brake
 
+
+    
     def update_controls(self):
         ######################################################
         # RETRIEVE SIMULATOR FEEDBACK
@@ -89,7 +91,8 @@ class Controller2D(object):
         throttle_output = 0
         steer_output    = 0
         brake_output    = 0
-
+        integral = 0
+        
         ######################################################
         ######################################################
         # MODULE 7: DECLARE USAGE VARIABLES HERE
@@ -120,7 +123,7 @@ class Controller2D(object):
         kp = 1
         ki = 1
         kd = 0.01
-        integral = 0
+        
         # Skip the first frame to store previous values properly
         if self._start_control_loop:
             """
@@ -180,7 +183,10 @@ class Controller2D(object):
             integral = self.vars.int_val + delta_v * st
 
             # D
-            derivate = (delta_v - self.vars.last_error) / st
+            epsilon = 1e-6 # small constant
+            #add the epsilon on the bottom to avoid the zero devision
+            derivate = (delta_v - self.vars.last_error) / (st+epsilon) 
+
 
             rst = kp * delta_v + ki * integral + kd * derivate
 

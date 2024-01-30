@@ -19,7 +19,7 @@ def read_columns_from_csv(file_path, column_names):
     except FileNotFoundError:
         print(f"file is not found!: {file_path}")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}")       
 
 def convert_gps_to_relative_coordinates(lon, lat):
     # sample (meter)
