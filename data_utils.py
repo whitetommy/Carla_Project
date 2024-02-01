@@ -1,5 +1,5 @@
 # data_utils.py
-import csv
+import csv, carla
 
 def read_columns_from_csv(file_path, column_names):
     try:
@@ -21,8 +21,7 @@ def read_columns_from_csv(file_path, column_names):
     except Exception as e:
         print(f"Error: {e}")       
 
-def convert_gps_to_relative_coordinates(lon, lat):
-    # sample (meter)
-    relative_x = (lon - 127.0) * 1000
-    relative_y = (lat - 37.5) * 1000
-    return relative_x, relative_y
+def geo_to_carla(latitude, longitude, altitude=0.0):
+    geo_location = carla.Location(latitude, longitude, altitude)
+
+    return geo_location

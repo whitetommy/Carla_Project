@@ -4,11 +4,10 @@ import time, sys, glob, os, cv2
 import numpy as np
 
 import carla
-import argparse
 
 from carla_utils import connect_to_carla, load_world, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
-from data_utils import read_columns_from_csv, convert_gps_to_relative_coordinates
+from data_utils import read_columns_from_csv, geo_to_carla
 from pid_utils import Controller2D
 from osm_to_xodr import convert
 
@@ -21,11 +20,6 @@ Font = cv2.FONT_ITALIC # shape of font
 str = "" # represent the brake status
 
 waypoints = []
-
-vertex_distance = 2.0  # in meters
-max_road_length = 500.0 # in meters
-wall_height = 0.0      # in meters
-extra_width = 0.6      # in meters
 
 # print the image of car by using the camera sensor
 def process_img(image):
@@ -61,20 +55,7 @@ if __name__ == "__main__":
         client = connect_to_carla('localhost', 2000)
         client.set_timeout(200)
 
-        # Map
-        data_path = r'D:\Desktop\map.osm'
-        xodr_data = convert(args)
-
-        world = client.generate_opendrive_world(xodr_data, carla.OpendriveGenerationParameters(
-            vertex_distance=vertex_distance,
-            max_road_length=max_road_length,
-            wall_height=wall_height,
-            additional_width=extra_width,
-            smooth_junctions=True,
-            enable_mesh_visibility=True)
-        )
-
-        # world = load_world(client, 'Town02') # Carla Map 
+        world = load_world(client, 'Town02') # Carla Map 
         blueprint_library = get_blueprint_library(world) 
 
         vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
@@ -96,6 +77,7 @@ if __name__ == "__main__":
         column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat']
         columns_data = read_columns_from_csv(data_path, column_names)
 
+
         if columns_data:
             controller = Controller2D(waypoints)
 
@@ -114,25 +96,27 @@ if __name__ == "__main__":
                     str = "Off"
                 print(f"brake_status : {str}")
 
-                relative_x, relative_y = convert_gps_to_relative_coordinates(lon, lat)
-                print(f"Relative Coordinates: X={relative_x}, Y={relative_y}")
+                # Carla_x, Carla_y = geo_to_carla(lon, lat)
+                Carla_Cor = geo_to_carla(lon, lat)
+                print(f"Geo Coordinates: ({Carla_Cor.x}, {Carla_Cor.y})")
+
+                waypoints.append([Carla_Cor.x, Carla_Cor.y, speed])
                 
-                waypoints.append([relative_x, relative_y, speed])
-                
-                controller.update_values(relative_x, relative_y, 0.0, speed, timestamp, True)
+                controller.update_values(Carla_Cor.x, Carla_Cor.y, 0.0, speed, timestamp, True)
                 controller.update_controls()
                 controller.get_commands()
-
                 steer = controller.get_steer()
                 # print(steer)
+
+                #Carla coordinates from Geo coordinates
+                carla_location = vehicle.get_location()
+                carla_coordinates = (carla_location.x, carla_location.y, carla_location.z)
+                # print("Carla Coordinates:", carla_coordinates)
 
                 control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)
 
-                # for waypoint in waypoints:
-                #     x, y, speed = waypoint
-                #     print(f"Waypoint - X: {x}, Y: {y}, Speed: {speed}")
-    
+
     finally:
         destroy_actors(actor_list)
         print('All cleaned up!')
