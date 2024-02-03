@@ -15,7 +15,6 @@ except IndexError:
 
 import carla
 
-
 def convert(args):
     # Read the .osm data
     with open(args.input_path, mode="r", encoding="utf-8") as osmFile:
