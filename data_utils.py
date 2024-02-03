@@ -23,5 +23,4 @@ def read_columns_from_csv(file_path, column_names):
 
 def geo_to_carla(latitude, longitude, altitude=0.0):
     geo_location = carla.Location(latitude, longitude, altitude)
-
     return geo_location
