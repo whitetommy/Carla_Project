@@ -3,13 +3,23 @@
 import time, sys, glob, os, cv2
 import numpy as np
 
+try:
+    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+        sys.version_info.major,
+        sys.version_info.minor,
+        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
+except IndexError:
+    pass
+
 import carla
+
 
 from carla_utils import connect_to_carla, load_world, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
 from data_utils import read_columns_from_csv, geo_to_carla
 from pid_utils import Controller2D
 from osm_to_xodr import convert
+from config_util import generate_xodr_map, set_spectator_location
 
 IM_WIDTH = 640  # Camera width
 IM_HEIGHT = 480 # Camera height
@@ -20,6 +30,7 @@ Font = cv2.FONT_ITALIC # shape of font
 str = "" # represent the brake status
 
 waypoints = []
+XODR_PATH = "output.xodr"
 
 # print the image of car by using the camera sensor
 def process_img(image):
@@ -53,9 +64,10 @@ if __name__ == "__main__":
 
     try:
         client = connect_to_carla('localhost', 2000)
-        client.set_timeout(200)
+        # client.set_timeout(200) #connect_to_carla에 이미 있음
 
-        world = load_world(client, 'Town02') # Carla Map 
+        world = generate_xodr_map(client, XODR_PATH) # Carla Map 
+        set_spectator_location(world)
         blueprint_library = get_blueprint_library(world) 
 
         vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
@@ -73,7 +85,7 @@ if __name__ == "__main__":
         actor_list.append(sensor)
 
         # Data
-        data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data 
+        data_path = r'C:\Users\goode\Desktop\carlaProject\newData.csv' # wherever users can set the path of data 
         column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat']
         columns_data = read_columns_from_csv(data_path, column_names)
 
