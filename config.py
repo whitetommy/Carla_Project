@@ -95,6 +95,9 @@ def inspect(args, client):
             1000.0 * s.fixed_delta_seconds,
             1.0 / s.fixed_delta_seconds)
 
+    spectator = world.get_spectator()
+    location_spect = carla.Actor.get_location(spectator)
+
     print('-' * 34)
     print('address:% 26s' % address)
     print('version:% 26s\n' % client.get_server_version())
@@ -106,6 +109,9 @@ def inspect(args, client):
     print('sync mode:  % 22s\n' % ('disabled' if not s.synchronous_mode else 'enabled'))
     print('actors:     % 22d' % len(actors))
     print('  * spectator:% 20d' % len(actors.filter('spectator')))
+    print('    x : ',location_spect.x)
+    print('    y : ',location_spect.y)
+    print('    z : ',location_spect.z)
     print('  * static:   % 20d' % len(actors.filter('static.*')))
     print('  * traffic:  % 20d' % len(actors.filter('traffic.*')))
     print('  * vehicles: % 20d' % len(actors.filter('vehicle.*')))
@@ -129,7 +135,7 @@ def main():
         help='TCP port of CARLA Simulator (default: 2000)')
     argparser.add_argument(
         '-d', '--default',
-        action='store_true',
+            on='store_true',
         help='set default settings')
     argparser.add_argument(
         '-m', '--map',
@@ -316,11 +322,8 @@ def main():
 
 
 if __name__ == '__main__':
-
     try:
-
         main()
-
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
     except RuntimeError as e:

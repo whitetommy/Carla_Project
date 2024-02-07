@@ -7,9 +7,10 @@ import carla
 
 from carla_utils import connect_to_carla, load_world, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
-from data_utils import read_columns_from_csv, geo_to_carla
+from data_utils import read_columns_from_csv, geo_to_carla, calculate_yaw
 from pid_utils import Controller2D
 from osm_to_xodr import convert
+from config_util import generate_xodr_map, set_spectator_location
 
 IM_WIDTH = 640  # Camera width
 IM_HEIGHT = 480 # Camera height
@@ -20,6 +21,7 @@ Font = cv2.FONT_ITALIC # shape of font
 str = "" # represent the brake status
 
 waypoints = []
+XODR_PATH = "output.xodr"
 
 # print the image of car by using the camera sensor
 def process_img(image):
@@ -53,9 +55,9 @@ if __name__ == "__main__":
 
     try:
         client = connect_to_carla('localhost', 2000)
-        client.set_timeout(200)
 
-        world = load_world(client, 'Town02') # Carla Map 
+        world = generate_xodr_map(client, XODR_PATH) # Carla Map 
+        set_spectator_location(world)
         blueprint_library = get_blueprint_library(world) 
 
         vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
@@ -74,7 +76,7 @@ if __name__ == "__main__":
 
         # Data
         data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data 
-        column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat']
+        column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat', 'acc_x', 'acc_y']
         columns_data = read_columns_from_csv(data_path, column_names)
 
 
@@ -90,6 +92,11 @@ if __name__ == "__main__":
                 lon = float(columns_data['lon'][i])
                 lat = float(columns_data['lat'][i])
 
+                acceleration_x = float(columns_data['acc_x'][i])
+                acceleration_y = float(columns_data['acc_y'][i])
+
+                yaw = float(calculate_yaw(acceleration_x, acceleration_y))
+
                 if brake == 1:
                     str = "On"
                 else :
@@ -98,11 +105,12 @@ if __name__ == "__main__":
 
                 # Carla_x, Carla_y = geo_to_carla(lon, lat)
                 Carla_Cor = geo_to_carla(lon, lat)
-                print(f"Geo Coordinates: ({Carla_Cor.x}, {Carla_Cor.y})")
+                #print(f"Geo Coordinates: ({Carla_Cor.x}, {Carla_Cor.y})")
 
                 waypoints.append([Carla_Cor.x, Carla_Cor.y, speed])
-                
-                controller.update_values(Carla_Cor.x, Carla_Cor.y, 0.0, speed, timestamp, True)
+
+
+                controller.update_values(Carla_Cor.x, Carla_Cor.y, yaw, speed, timestamp, True)
                 controller.update_controls()
                 controller.get_commands()
                 steer = controller.get_steer()
@@ -111,7 +119,7 @@ if __name__ == "__main__":
                 #Carla coordinates from Geo coordinates
                 carla_location = vehicle.get_location()
                 carla_coordinates = (carla_location.x, carla_location.y, carla_location.z)
-                # print("Carla Coordinates:", carla_coordinates)
+                print("Carla Coordinates(x,y,z):", carla_coordinates)
 
                 control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)
