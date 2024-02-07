@@ -3,7 +3,16 @@
 import time, sys, glob, os, cv2
 import numpy as np
 
+try:
+    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+        sys.version_info.major,
+        sys.version_info.minor,
+        'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
+except IndexError:
+    pass
+
 import carla
+
 
 from carla_utils import connect_to_carla, load_world, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
@@ -123,7 +132,6 @@ if __name__ == "__main__":
 
                 control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)
-
 
     finally:
         destroy_actors(actor_list)
