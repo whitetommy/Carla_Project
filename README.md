@@ -4,9 +4,9 @@ This software implements a real driving data in the "Carla Simulator". We get th
 like speed, rpm, brake, gps(longitude, latitude), steer. We put this data in the csv file, read it and take it from csv file. Then, we deliver it to the carla vehicle apply control. After that, we can see what it's gonna be operated in the carla simulator.
 
 Furthermore, this software implements the function of printing the image of car by using the camera sensor to show that we put the brake and represent it on the back of the car as a read light.
-```
-# main.py
 
+main.py
+```
 # print the image of car by using the camera sensor
 def process_img(image):
     text = "brake : " + str
