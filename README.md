@@ -5,6 +5,7 @@ speed, rpm, brake, gps(경도, 위도), steer 데이터들을 csv 파일에 넣�
 carla vehicle apply control로 전달합니다. 
 carla 시뮬레이터에서 작동되는 것을 볼 수 있습니다.
 
+<br><br/>
 또한, 카메라 센서를 이용하여 브레이크를 밟은 것을 보여주고 이를 판독등으로 표시하여 자동차의 이미지를 인쇄하는 기능을 구현합니다.
 ```
 # main.py
@@ -26,7 +27,7 @@ sensor = spawn_camera_sensor(world, cam_bp, spawn_point, vehicle, process_img)
 actor_list.append(sensor)
 ```
 
-
+<br><br/>
 차량 데이터 추출에서 steer값(좌,우회전 구현)은 제공되지 않기 때문에, pid_utils.py 파일에서 횡방향 제어 알고리즘을 구현하였습니다.
 ```
 if columns_data:
