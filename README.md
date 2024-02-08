@@ -1,6 +1,12 @@
 # Carla_Project
 <br><br/>
 이 소프트웨어는 "Carla Simulator"에서 실제 주행 데이터를 구현합니다. 실제 주행 자동차에서 데이터를 얻습니다.
+
+<br><br/>
+### 실행 방법
+https://whitehacking.tistory.com/29
+
+<br><br/>
 speed, rpm, brake, gps(경도, 위도), steer 데이터들을 csv 파일에 넣어서 읽고 csv 파일에서 가져갑니다. 
 ```
 data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data 
