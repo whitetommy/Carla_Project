@@ -135,7 +135,7 @@ def main():
         help='TCP port of CARLA Simulator (default: 2000)')
     argparser.add_argument(
         '-d', '--default',
-            on='store_true',
+        action='store_true',
         help='set default settings')
     argparser.add_argument(
         '-m', '--map',

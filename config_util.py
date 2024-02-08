@@ -27,14 +27,9 @@ except IndexError:
 
 import carla
 
-import datetime
-import re
-import socket
-import textwrap
-
-INIT_SPECT_X = 2000
-INIT_SPECT_Y = -3650
-INIT_SPECT_Z = 400
+INIT_SPECT_X = 7400
+INIT_SPECT_Y = -4500
+INIT_SPECT_Z = 500
 def generate_xodr_map(client, xodr_path):
     if os.path.exists(xodr_path):
         with open(xodr_path, encoding='utf-8') as od_file:
