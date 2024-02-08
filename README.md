@@ -124,3 +124,50 @@ carla_location = vehicle.get_location()
 carla_coordinates = (carla_location.x, carla_location.y, carla_location.z)
 print("Carla Coordinates(x,y,z):", carla_coordinates)
 ```
+<br><br/>
+실제, 차량 주행 데이터를 openstreetMap에서 추출하여 해당 지도에서 carla simulator를 보여주기 위해 osm파일을 xodr로 변환하고, 적용합니다. osm_to_xodr.py과 config.py, config_util.py에서 구현하였고, 차량은 테슬라로 설정하였습니다.
+```
+#main.py
+client = connect_to_carla('localhost', 2000)
+
+world = generate_xodr_map(client, XODR_PATH) # Carla Map 
+set_spectator_location(world)
+blueprint_library = get_blueprint_library(world) 
+
+vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
+spawn_point = get_spawn_point(world)
+
+vehicle = spawn_actor(world, vehicle_bp, spawn_point)
+actor_list.append(vehicle)
+        
+vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer=0.0))
+```
+```
+#config_util.py
+def generate_xodr_map(client, xodr_path):
+    if os.path.exists(xodr_path):
+        with open(xodr_path, encoding='utf-8') as od_file:
+            try:
+                data = od_file.read()
+            except OSError:
+                print('file could not be readed.')
+                sys.exit()
+        print('load opendrive map %r.' % os.path.basename(xodr_path))
+        vertex_distance = 2.0  # in meters
+        max_road_length = 500.0 # in meters
+        wall_height = 1.0      # in meters
+        extra_width = 0.6      # in meters
+        world = client.generate_opendrive_world(
+            data, carla.OpendriveGenerationParameters(
+                vertex_distance=vertex_distance,
+                max_road_length=max_road_length,
+                wall_height=wall_height,
+                additional_width=extra_width,
+                smooth_junctions=True,
+                enable_mesh_visibility=True))
+    else:
+        print('file not found.')
+
+    return world
+```
+
