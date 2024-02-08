@@ -1,5 +1,5 @@
 # Carla_Project
-
+<br><br/>
 이 소프트웨어는 "Carla Simulator"에서 실제 주행 데이터를 구현합니다. 실제 주행 자동차에서 데이터를 얻습니다.
 speed, rpm, brake, gps(경도, 위도), steer 데이터들을 csv 파일에 넣어서 읽고 csv 파일에서 가져갑니다. 
 ```
@@ -8,7 +8,6 @@ column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat', 'acc_x', 'ac
 columns_data = read_columns_from_csv(data_path, column_names)
 ```
 
-<br><br/>
 carla vehicle apply control로 전달합니다. carla 시뮬레이터에서 작동되는 것을 볼 수 있습니다.
 ```
 #data_utils.py
@@ -48,7 +47,6 @@ def spawn_camera_sensor(world, blueprint, spawn_point, vehicle, callback_functio
     sensor.listen(lambda data: callback_function(data))
     return sensor
 ```
-<br><br/>
 ```
 #main.py
 IM_WIDTH = 640  # Camera width
@@ -95,7 +93,6 @@ else :
 print(f"brake_status : {str}")
 ```
 
-
 차량 데이터 추출에서 steer값(좌,우회전 구현)은 제공되지 않기 때문에, pid_utils.py 파일과 cutils.py에서 횡방향 제어 알고리즘을 구현하였습니다.
 ```
 #data_utils.py
@@ -116,8 +113,7 @@ controller.get_commands()
 steer = controller.get_steer()
 ```
 
-<br><br/>
-We have the function of converting the gps data to relative coordinates in Carla Map. In order to express the longitude and latitude like GPS in Carla Simulator, we need to know what the exact relative coordinates is in Carla Map.
+Carla Map에서 GPS 데이터를 상대 좌표로 변환하는 기능을 가지고 있습니다. 칼라 시뮬레이터에서 GPS처럼 경도와 위도를 표현하기 위해서는 칼라 지도에서 정확한 상대 좌표가 무엇인지 알아야 합니다.
 ```
 def geo_to_carla(latitude, longitude, altitude=0.0):
     geo_location = carla.Location(latitude, longitude, altitude)
