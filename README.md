@@ -7,7 +7,7 @@ data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data
 column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat', 'acc_x', 'acc_y']
 columns_data = read_columns_from_csv(data_path, column_names)
 ```
-
+<br><br/>
 carla vehicle apply control로 전달합니다. carla 시뮬레이터에서 작동되는 것을 볼 수 있습니다.
 ```
 #data_utils.py
@@ -31,7 +31,7 @@ def read_columns_from_csv(file_path, column_names):
     except Exception as e:
         print(f"Error: {e}") 
 ```
-
+<br><br/>
 또한, 카메라 센서를 이용하여 브레이크를 밟은 것을 보여주고 이를 판독등으로 표시하여 자동차의 이미지를 인쇄하는 기능을 구현합니다.
 ```
 #sensor_utils.py
@@ -92,7 +92,7 @@ else :
     str = "Off"
 print(f"brake_status : {str}")
 ```
-
+<br><br/>
 차량 데이터 추출에서 steer값(좌,우회전 구현)은 제공되지 않기 때문에, pid_utils.py 파일과 cutils.py에서 횡방향 제어 알고리즘을 구현하였습니다.
 ```
 #data_utils.py
@@ -112,7 +112,7 @@ controller.update_controls()
 controller.get_commands()
 steer = controller.get_steer()
 ```
-
+<br><br/>
 Carla Map에서 GPS 데이터를 상대 좌표로 변환하는 기능을 가지고 있습니다. 칼라 시뮬레이터에서 GPS처럼 경도와 위도를 표현하기 위해서는 칼라 지도에서 정확한 상대 좌표가 무엇인지 알아야 합니다.
 ```
 def geo_to_carla(latitude, longitude, altitude=0.0):
