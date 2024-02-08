@@ -2,15 +2,63 @@
 
 이 소프트웨어는 "Carla Simulator"에서 실제 주행 데이터를 구현합니다. 실제 주행 자동차에서 데이터를 얻습니다.
 speed, rpm, brake, gps(경도, 위도), steer 데이터들을 csv 파일에 넣어서 읽고 csv 파일에서 가져갑니다. 
-carla vehicle apply control로 전달합니다. 
-carla 시뮬레이터에서 작동되는 것을 볼 수 있습니다.
+```
+data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data 
+column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat', 'acc_x', 'acc_y']
+columns_data = read_columns_from_csv(data_path, column_names)
+```
 
 <br><br/>
+carla vehicle apply control로 전달합니다. carla 시뮬레이터에서 작동되는 것을 볼 수 있습니다.
+```
+#data_utils.py
+def read_columns_from_csv(file_path, column_names):
+    try:
+        with open(file_path, 'r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for column_name in column_names:
+                if column_name not in reader.fieldnames:
+                    raise ValueError(f"{column_name} column is not found! ")
+
+            columns_data = {column_name: [] for column_name in column_names}
+            
+            for row in reader:
+                for column_name in column_names:
+                    columns_data[column_name].append(row[column_name])
+
+        return columns_data
+    except FileNotFoundError:
+        print(f"file is not found!: {file_path}")
+    except Exception as e:
+        print(f"Error: {e}") 
+```
+
 또한, 카메라 센서를 이용하여 브레이크를 밟은 것을 보여주고 이를 판독등으로 표시하여 자동차의 이미지를 인쇄하는 기능을 구현합니다.
 ```
-# main.py
+#sensor_utils.py
+def create_camera_blueprint(blueprint_library, image_size_x, image_size_y, fov):
+    cam_bp = blueprint_library.find("sensor.camera.rgb")
+    cam_bp.set_attribute("image_size_x", f"{image_size_x}")
+    cam_bp.set_attribute("image_size_y", f"{image_size_y}")
+    cam_bp.set_attribute("fov", f"{fov}")
+    return cam_bp
 
-# print the image of car by using the camera sensor
+def spawn_camera_sensor(world, blueprint, spawn_point, vehicle, callback_function):
+    sensor = world.spawn_actor(blueprint, spawn_point, attach_to=vehicle)
+    sensor.listen(lambda data: callback_function(data))
+    return sensor
+```
+<br><br/>
+```
+#main.py
+IM_WIDTH = 640  # Camera width
+IM_HEIGHT = 480 # Camera height
+
+ORG = (50,70)   # starting location of letter
+Font = cv2.FONT_ITALIC # shape of font
+
+str = "" # represent the brake status
+
 def process_img(image):
     text = "brake : " + str
     i = np.array(image.raw_data)
@@ -25,11 +73,39 @@ cam_bp = create_camera_blueprint(blueprint_library, IM_WIDTH, IM_HEIGHT, 110)
 spawn_point = carla.Transform(carla.Location(x=2.5, z=0.7)) # Camera spawn location
 sensor = spawn_camera_sensor(world, cam_bp, spawn_point, vehicle, process_img)
 actor_list.append(sensor)
+
+def control_vehicle(vehicle, rpm, speed, brake, steer):
+    throttle = min(speed / 100.0, 1.0) 
+    brake = min(max(brake, 0.0), 1.0)
+    steer = np.clip(steer, -1.0, 1.0) # Data for car to move left and right side 
+
+    control = carla.VehicleControl(throttle=throttle, steer = steer, brake = brake)
+    vehicle.apply_control(control)
+
+    #As long as we put the brake, brake light is gonna be red
+    if brake == 0:
+        vehicle.set_light_state(carla.VehicleLightState.NONE)
+    else :
+        vehicle.set_light_state(carla.VehicleLightState.Brake)
+
+if brake == 1:
+    str = "On"
+else :
+    str = "Off"
+print(f"brake_status : {str}")
 ```
 
-<br><br/>
-차량 데이터 추출에서 steer값(좌,우회전 구현)은 제공되지 않기 때문에, pid_utils.py 파일에서 횡방향 제어 알고리즘을 구현하였습니다.
+
+차량 데이터 추출에서 steer값(좌,우회전 구현)은 제공되지 않기 때문에, pid_utils.py 파일과 cutils.py에서 횡방향 제어 알고리즘을 구현하였습니다.
 ```
+#data_utils.py
+def calculate_yaw(acceleration_x, acceleration_y):
+    yaw_rad = math.atan2(acceleration_x, acceleration_y)
+    yaw_deg = math.degrees(yaw_rad) # change to degree from radian
+    return yaw_deg
+```
+```
+#main.py
 if columns_data:
             controller = Controller2D(waypoints)
 ...
@@ -38,23 +114,6 @@ controller.update_values(Carla_Cor.x, Carla_Cor.y, yaw, speed, timestamp, True)
 controller.update_controls()
 controller.get_commands()
 steer = controller.get_steer()
-```
-
-<br><br/>
-We can also see the front view of the car.  
-```
-def create_camera_blueprint(blueprint_library, image_size_x, image_size_y, fov):
-    cam_bp = blueprint_library.find("sensor.camera.rgb")
-    cam_bp.set_attribute("image_size_x", f"{image_size_x}")
-    cam_bp.set_attribute("image_size_y", f"{image_size_y}")
-    cam_bp.set_attribute("fov", f"{fov}")
-    return cam_bp
-```
-```
-def spawn_camera_sensor(world, blueprint, spawn_point, vehicle, callback_function):
-    sensor = world.spawn_actor(blueprint, spawn_point, attach_to=vehicle)
-    sensor.listen(lambda data: callback_function(data))
-    return sensor
 ```
 
 <br><br/>
@@ -68,7 +127,4 @@ def geo_to_carla(latitude, longitude, altitude=0.0):
 carla_location = vehicle.get_location()
 carla_coordinates = (carla_location.x, carla_location.y, carla_location.z)
 print("Carla Coordinates(x,y,z):", carla_coordinates)
-
 ```
-
-
