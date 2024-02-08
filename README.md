@@ -5,9 +5,9 @@ like speed, rpm, brake, gps(longitude, latitude), steer. We put this data in the
 
 Furthermore, this software implements the function of printing the image of car by using the camera sensor to show that we put the brake and represent it on the back of the car as a read light.
 
-
-## main.py
 ```
+# main.py
+
 # print the image of car by using the camera sensor
 def process_img(image):
     text = "brake : " + str
