@@ -19,7 +19,7 @@ from sensor_utils import create_camera_blueprint, spawn_camera_sensor
 from data_utils import read_columns_from_csv, geo_to_carla, calculate_yaw
 from pid_utils import Controller2D
 from osm_to_xodr import convert
-from config_util import generate_xodr_map, set_spectator_location
+from config_util import generate_xodr_map, set_spectator_location, set_vehicle_location
 
 IM_WIDTH = 640  # Camera width
 IM_HEIGHT = 480 # Camera height
@@ -74,7 +74,9 @@ if __name__ == "__main__":
 
         vehicle = spawn_actor(world, vehicle_bp, spawn_point)
         actor_list.append(vehicle)
-        
+
+        set_vehicle_location(vehicle, x=7456, y=-2511, z=195)
+
         vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer=0.0))
 
         # Camera
@@ -112,18 +114,13 @@ if __name__ == "__main__":
                     str = "Off"
                 print(f"brake_status : {str}")
 
-                # Carla_x, Carla_y = geo_to_carla(lon, lat)
                 Carla_Cor = geo_to_carla(lon, lat)
-                #print(f"Geo Coordinates: ({Carla_Cor.x}, {Carla_Cor.y})")
-
                 waypoints.append([Carla_Cor.x, Carla_Cor.y, speed])
-
 
                 controller.update_values(Carla_Cor.x, Carla_Cor.y, yaw, speed, timestamp, True)
                 controller.update_controls()
                 controller.get_commands()
                 steer = controller.get_steer()
-                # print(steer)
 
                 #Carla coordinates from Geo coordinates
                 carla_location = vehicle.get_location()

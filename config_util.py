@@ -60,3 +60,7 @@ def set_spectator_location(world):
     spectator = world.get_spectator()
     location = carla.Location(x = INIT_SPECT_X, y = INIT_SPECT_Y, z = INIT_SPECT_Z)
     spectator.set_transform(carla.Transform(location, carla.Rotation()))
+
+def set_vehicle_location(vehicle, x, y, z):
+    location = carla.Location(x=x, y=y, z=z)
+    vehicle.set_transform(carla.Transform(location, carla.Rotation()))
