@@ -27,9 +27,9 @@ except IndexError:
 
 import carla
 
-INIT_SPECT_X = 7400
-INIT_SPECT_Y = -4500
-INIT_SPECT_Z = 500
+INIT_SPECT_X = 7456
+INIT_SPECT_Y = -2511
+INIT_SPECT_Z = 195
 def generate_xodr_map(client, xodr_path):
     if os.path.exists(xodr_path):
         with open(xodr_path, encoding='utf-8') as od_file:
