@@ -84,9 +84,9 @@ if __name__ == "__main__":
         spawn_point = carla.Transform(carla.Location(x=2.5, z=0.7)) # Camera spawn location
         sensor = spawn_camera_sensor(world, cam_bp, spawn_point, vehicle, process_img)
         actor_list.append(sensor)
-
+    
         # Data
-        data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data 
+        data_path = r"newData.csv" # wherever users can set the path of data 
         column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat', 'acc_x', 'acc_y']
         columns_data = read_columns_from_csv(data_path, column_names)
 
