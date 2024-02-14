@@ -86,7 +86,7 @@ if __name__ == "__main__":
         actor_list.append(sensor)
 
         # Data
-        data_path = r'D:\Desktop\newData.csv' # wherever users can set the path of data 
+        data_path = r'D:\\Desktop\\newData.csv' # wherever users can set the path of data 
         column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat', 'acc_x', 'acc_y']
         columns_data = read_columns_from_csv(data_path, column_names)
 
