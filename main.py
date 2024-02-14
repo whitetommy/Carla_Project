@@ -16,7 +16,7 @@ import carla
 
 from carla_utils import connect_to_carla, load_world, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
-from data_utils import read_columns_from_csv, geo_to_carla, calculate_yaw
+from data_utils import read_columns_from_csv, geo_to_carla, calculate_yaw, calculate_yaw_from_gps
 from pid_utils import Controller2D
 from osm_to_xodr import convert
 from config_util import generate_xodr_map, set_spectator_location, set_vehicle_location
@@ -84,9 +84,9 @@ if __name__ == "__main__":
         spawn_point = carla.Transform(carla.Location(x=2.5, z=0.7)) # Camera spawn location
         sensor = spawn_camera_sensor(world, cam_bp, spawn_point, vehicle, process_img)
         actor_list.append(sensor)
-
+    
         # Data
-        data_path = r'D:\\Desktop\\newData.csv' # wherever users can set the path of data 
+        data_path = r"newData.csv" # wherever users can set the path of data 
         column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat', 'acc_x', 'acc_y']
         columns_data = read_columns_from_csv(data_path, column_names)
 
@@ -103,10 +103,14 @@ if __name__ == "__main__":
                 lon = float(columns_data['lon'][i])
                 lat = float(columns_data['lat'][i])
 
+                nextLon = float(columns_data['lon'][i+1])
+                nextLat = float(columns_data['lat'][i+1])
+
                 acceleration_x = float(columns_data['acc_x'][i])
                 acceleration_y = float(columns_data['acc_y'][i])
 
-                yaw = float(calculate_yaw(acceleration_x, acceleration_y))
+                # yaw = float(calculate_yaw(acceleration_x, acceleration_y))
+                yaw = float(calculate_yaw_from_gps(lon, lat, nextLon, nextLat))
 
                 if brake == 1:
                     str = "On"
@@ -114,16 +118,16 @@ if __name__ == "__main__":
                     str = "Off"
                 print(f"brake_status : {str}")
 
-                Carla_Cor = geo_to_carla(lon, lat)
-                waypoints.append([Carla_Cor.x, Carla_Cor.y, speed])
+                carla_location = vehicle.get_location()
+                waypoints.append([carla_location.x, carla_location.y, speed])
 
-                controller.update_values(Carla_Cor.x, Carla_Cor.y, yaw, speed, timestamp, True)
+                controller.update_values(carla_location.x, carla_location.y, yaw, speed, timestamp, True)
                 controller.update_controls()
                 controller.get_commands()
                 steer = controller.get_steer()
 
                 #Carla coordinates from Geo coordinates
-                carla_location = vehicle.get_location()
+                
                 carla_coordinates = (carla_location.x, carla_location.y, carla_location.z)
                 print("Carla Coordinates(x,y,z):", carla_coordinates)
 
