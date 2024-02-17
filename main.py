@@ -14,10 +14,9 @@ except IndexError:
 import carla
 
 
-from carla_utils import connect_to_carla, load_world, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
+from carla_utils import connect_to_carla, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
-from data_utils import read_columns_from_csv, geo_to_carla, calculate_yaw, calculate_yaw_from_gps
-from pid_utils import Controller2D
+from data_utils import read_columns_from_csv, geo_to_carla, calculate_steer_angle, calculate_yaw_from_gps
 from osm_to_xodr import convert
 from config_util import generate_xodr_map, set_spectator_location, set_vehicle_location
 
@@ -103,14 +102,15 @@ if __name__ == "__main__":
                 lon = float(columns_data['lon'][i])
                 lat = float(columns_data['lat'][i])
 
-                nextLon = float(columns_data['lon'][i+1])
-                nextLat = float(columns_data['lat'][i+1])
+                nextLon = float(columns_data['lon'][i+1] if i+1 < len(columns_data['lon']) else columns_data['lon'][i])
+                nextLat = float(columns_data['lat'][i+1] if i+1 < len(columns_data['lat']) else columns_data['lat'][i])
 
-                acceleration_x = float(columns_data['acc_x'][i])
-                acceleration_y = float(columns_data['acc_y'][i])
+                car_position = vehicle.get_location()
+                car_position = geo_to_carla(lon, lat)
+                target_position = geo_to_carla(nextLon, nextLat)
+                car_orientation = calculate_yaw_from_gps(lon, lat, nextLon, nextLat)
 
-                # yaw = float(calculate_yaw(acceleration_x, acceleration_y))
-                yaw = float(calculate_yaw_from_gps(lon, lat, nextLon, nextLat))
+                steer = calculate_steer_angle(car_position, car_orientation, target_position)
 
                 if brake == 1:
                     str = "On"
@@ -118,17 +118,7 @@ if __name__ == "__main__":
                     str = "Off"
                 print(f"brake_status : {str}")
 
-                carla_location = vehicle.get_location()
-                waypoints.append([carla_location.x, carla_location.y, speed])
-
-                controller.update_values(carla_location.x, carla_location.y, yaw, speed, timestamp, True)
-                controller.update_controls()
-                controller.get_commands()
-                steer = controller.get_steer()
-
-                #Carla coordinates from Geo coordinates
-                
-                carla_coordinates = (carla_location.x, carla_location.y, carla_location.z)
+                carla_coordinates = (car_position.x, car_position.y, car_position.z)
                 print("Carla Coordinates(x,y,z):", carla_coordinates)
 
                 control_vehicle(vehicle, rpm, speed, brake, steer)  
