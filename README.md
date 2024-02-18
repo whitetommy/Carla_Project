@@ -47,6 +47,8 @@ def read_columns_from_csv(file_path, column_names):
 
 <br><br/>
 또한, 카메라 센서를 이용하여 브레이크를 밟은 것을 보여주고 이를 판독등으로 표시하여 자동차의 이미지를 인쇄하는 기능을 구현합니다.
+![image](https://github.com/whitetommy/Carla_Project/assets/137167886/e747458d-b776-48ca-9d84-32984f400b77)
+![image](https://github.com/whitetommy/Carla_Project/assets/137167886/2c13c51a-26a0-470d-b415-f0d503aefb67)
 ```
 #sensor_utils.py
 def create_camera_blueprint(blueprint_library, image_size_x, image_size_y, fov):
