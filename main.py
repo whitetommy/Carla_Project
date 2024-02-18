@@ -18,7 +18,7 @@ from carla_utils import connect_to_carla, get_blueprint_library, find_vehicle_bl
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
 from data_utils import read_columns_from_csv, geo_to_carla, calculate_steer_angle, calculate_yaw_from_gps
 from osm_to_xodr import convert
-from config_util import generate_xodr_map, set_spectator_location, set_vehicle_location
+from config_util import generate_xodr_map, set_spectator_location
 
 IM_WIDTH = 640  # Camera width
 IM_HEIGHT = 480 # Camera height
@@ -70,11 +70,10 @@ if __name__ == "__main__":
 
         vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
         spawn_point = get_spawn_point(world)
+        spawn_point = carla.Transform(carla.Location(x=7456, y=-2511, z=191), carla.Rotation(yaw = 55))
 
         vehicle = spawn_actor(world, vehicle_bp, spawn_point)
         actor_list.append(vehicle)
-
-        set_vehicle_location(vehicle, x=7456, y=-2511, z=195)
 
         vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer=0.0))
 
@@ -91,8 +90,6 @@ if __name__ == "__main__":
 
 
         if columns_data:
-            controller = Controller2D(waypoints)
-
             for i in range(len(columns_data['speed'])):
                 speed = float(columns_data['speed'][i])
                 rpm = float(columns_data['rpm'][i])
@@ -106,6 +103,10 @@ if __name__ == "__main__":
                 nextLat = float(columns_data['lat'][i+1] if i+1 < len(columns_data['lat']) else columns_data['lat'][i])
 
                 car_position = vehicle.get_location()
+
+                carla_coordinates = (car_position.x, car_position.y, car_position.z)
+                print("Carla Coordinates(x,y,z):", carla_coordinates)
+
                 car_position = geo_to_carla(lon, lat)
                 target_position = geo_to_carla(nextLon, nextLat)
                 car_orientation = calculate_yaw_from_gps(lon, lat, nextLon, nextLat)
@@ -117,9 +118,6 @@ if __name__ == "__main__":
                 else :
                     str = "Off"
                 print(f"brake_status : {str}")
-
-                carla_coordinates = (car_position.x, car_position.y, car_position.z)
-                print("Carla Coordinates(x,y,z):", carla_coordinates)
 
                 control_vehicle(vehicle, rpm, speed, brake, steer)  
                 time.sleep(1)

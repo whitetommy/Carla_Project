@@ -42,7 +42,7 @@ def generate_xodr_map(client, xodr_path):
         vertex_distance = 2.0  # in meters
         max_road_length = 500.0 # in meters
         wall_height = 1.0      # in meters
-        extra_width = 0.6      # in meters
+        extra_width = 0.8      # in meters
         world = client.generate_opendrive_world(
             data, carla.OpendriveGenerationParameters(
                 vertex_distance=vertex_distance,
@@ -60,7 +60,3 @@ def set_spectator_location(world):
     spectator = world.get_spectator()
     location = carla.Location(x = INIT_SPECT_X, y = INIT_SPECT_Y, z = INIT_SPECT_Z)
     spectator.set_transform(carla.Transform(location, carla.Rotation()))
-
-def set_vehicle_location(vehicle, x, y, z):
-    location = carla.Location(x=x, y=y, z=z)
-    vehicle.set_transform(carla.Transform(location, carla.Rotation()))
