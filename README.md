@@ -8,7 +8,9 @@ https://whitehacking.tistory.com/29
 
 <br><br/>
 cd [프로젝트 경로]    // anaconda prompt
+<br><br/>
 activate carla-sim    // 클라이언트 활성화
+<br><br/>
 python main.py
 
 <br><br/>
