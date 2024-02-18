@@ -1,6 +1,4 @@
 # sensor_utils.py
-import carla
-import cv2
 import numpy as np
 
 def create_camera_blueprint(blueprint_library, image_size_x, image_size_y, fov):

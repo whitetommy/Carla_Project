@@ -11,7 +11,6 @@ def read_columns_from_csv(file_path, column_names):
                     raise ValueError(f"{column_name} column is not found! ")
 
             columns_data = {column_name: [] for column_name in column_names}
-            
             for row in reader:
                 for column_name in column_names:
                     columns_data[column_name].append(row[column_name])

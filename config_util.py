@@ -1,18 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2019 Computer Vision Center (CVC) at the Universitat Autonoma de
-# Barcelona (UAB).
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
-"""
-Configure and inspect an instance of CARLA Simulator.
-
-For further details, visit
-https://carla.readthedocs.io/en/latest/configuring_the_simulation/
-"""
-
 import glob
 import os
 import sys
@@ -29,7 +14,8 @@ import carla
 
 INIT_SPECT_X = 7456
 INIT_SPECT_Y = -2511
-INIT_SPECT_Z = 195
+INIT_SPECT_Z = 194
+
 def generate_xodr_map(client, xodr_path):
     if os.path.exists(xodr_path):
         with open(xodr_path, encoding='utf-8') as od_file:
@@ -53,7 +39,6 @@ def generate_xodr_map(client, xodr_path):
                 enable_mesh_visibility=True))
     else:
         print('file not found.')
-
     return world
 
 def set_spectator_location(world):
