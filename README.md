@@ -1,7 +1,8 @@
 # Carla_Project
 <br><br/>
 이 소프트웨어는 "Carla Simulator"에서 실제 주행 데이터를 구현합니다. 실제 주행 자동차에서 데이터를 얻은 내용을 바탕으로 주행을 시뮬레이션 합니다.
-<img width="60%" src="https://github.com/whitetommy/Carla_Project/assets/137167886/f9f98670-a86d-4f56-ace9-f7f802350388"/>
+<br><br/>
+<img width="80%" src="https://github.com/whitetommy/Carla_Project/assets/137167886/f9f98670-a86d-4f56-ace9-f7f802350388"/>
 <br><br/>
 ### 실행 방법
 https://whitehacking.tistory.com/29
