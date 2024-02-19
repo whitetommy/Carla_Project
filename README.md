@@ -183,9 +183,9 @@ https://github.com/JHMeusener/osm2xodr 설치
 <br>pip install Pillow 
 
 #### 만약에 osmread패키지 설치에 오류가 발생할 경우 
-    https://github.com/dezhin/osmread 설치
-<br>    python setup.py install
-<br>    pip install osmread
+    &emsp;https://github.com/dezhin/osmread 설치
+<br>    &emsp;python setup.py install
+<br>    &emsp;pip install osmread
 <br>
 <br>conda list // 가상환경의 패키지 확인
 <br>
