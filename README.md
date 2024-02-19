@@ -170,6 +170,7 @@ print("Carla Coordinates(x,y,z):", carla_coordinates)
 실제, 차량 주행 데이터를 openstreetMap에서 추출하여 해당 지도에서 carla simulator를 보여주기 위해 osm파일을 xodr로 변환하고, 적용합니다. osm_to_xodr.py과 config.py, config_util.py에서 구현하였고, 차량은 테슬라로 설정하였습니다.
 <br>
 ### 실제 지도를 calra simulator에 맞게 변환하는 방법은 다음과 같습니다.
+
 https://github.com/JHMeusener/osm2xodr 설치
 <br>위 링크는 OpenStreetMap(.osm) 파일형식을 OpenDrive(.xodr)로 변환하는 코드입니다.
 <br>
@@ -183,7 +184,8 @@ https://github.com/JHMeusener/osm2xodr 설치
 <br>pip install Pillow 
 
 #### 만약에 osmread패키지 설치에 오류가 발생할 경우 
-    &emsp;https://github.com/dezhin/osmread 설치
+
+&emsp;https://github.com/dezhin/osmread 설치
 <br>    &emsp;python setup.py install
 <br>    &emsp;pip install osmread
 <br>
