@@ -11,7 +11,6 @@ except IndexError:
     pass
 
 import carla
-
 from carla_utils import connect_to_carla, get_blueprint_library, find_vehicle_blueprint, get_spawn_point, spawn_actor, destroy_actors
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
 from data_utils import read_columns_from_csv, geo_to_carla, calculate_steer_angle, calculate_yaw_from_gps
