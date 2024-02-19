@@ -1,18 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2019 Computer Vision Center (CVC) at the Universitat Autonoma de
-# Barcelona (UAB).
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
-"""
-Configure and inspect an instance of CARLA Simulator.
-
-For further details, visit
-https://carla.readthedocs.io/en/latest/configuring_the_simulation/
-"""
-
 import glob
 import os
 import sys
@@ -26,13 +11,11 @@ except IndexError:
     pass
 
 import carla
-
 import argparse
 import datetime
 import re
 import socket
 import textwrap
-
 
 def get_ip(host):
     if host in ['localhost', '127.0.0.1']:
@@ -46,11 +29,9 @@ def get_ip(host):
             sock.close()
     return host
 
-
 def find_weather_presets():
     presets = [x for x in dir(carla.WeatherParameters) if re.match('[A-Z].+', x)]
     return [(getattr(carla.WeatherParameters, x), x) for x in presets]
-
 
 def list_options(client):
     maps = [m.replace('/Game/Carla/Maps/', '') for m in client.get_available_maps()]
@@ -62,7 +43,6 @@ def list_options(client):
     print('available maps:\n')
     print(wrap(', '.join(sorted(maps))) + '.\n')
 
-
 def list_blueprints(world, bp_filter):
     blueprint_library = world.get_blueprint_library()
     blueprints = [bp.id for bp in blueprint_library.filter(bp_filter)]
@@ -70,7 +50,6 @@ def list_blueprints(world, bp_filter):
     for bp in sorted(blueprints):
         print('    ' + bp)
     print('')
-
 
 def inspect(args, client):
     address = '%s:%d' % (get_ip(args.host), args.port)
@@ -117,7 +96,6 @@ def inspect(args, client):
     print('  * vehicles: % 20d' % len(actors.filter('vehicle.*')))
     print('  * walkers:  % 20d' % len(actors.filter('walker.*')))
     print('-' * 34)
-
 
 def main():
     argparser = argparse.ArgumentParser(
@@ -319,7 +297,6 @@ def main():
         list_options(client)
     if args.list_blueprints:
         list_blueprints(world, args.list_blueprints)
-
 
 if __name__ == '__main__':
     try:
