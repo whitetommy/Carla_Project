@@ -174,9 +174,6 @@ carla_coordinates = (car_position.x, car_position.y, car_position.z)
 print("Carla Coordinates(x,y,z):", carla_coordinates)
 ```
 <br><br/>
-실제, 차량 주행 데이터를 openstreetMap에서 추출하여 해당 지도에서 carla simulator를 보여주기 위해 osm파일을 xodr로 변환하고, 적용합니다. osm_to_xodr.py과 config.py, config_util.py에서 구현하였고, 차량은 테슬라로 설정하였습니다.
-
-<br><br/>
 situation.py 에서 급발진에 대한 로직을 추가하였습니다. brake 는 밟았는데, 차량 문제로 인하여 rpm이 비정상적으로 올라가서, speed가 줄어들지 않는 로직을 추가하였습니다. 
 ```
 def simulate_sudden_unintended_acceleration(vehicle, brake_status):
@@ -218,6 +215,8 @@ main.py 에서 급발진 트리거 확률은 1퍼센트로 설정하고, 급발�
                     # Ensure the global 'str' variable is correctly showing brake status
                     str = "On" if brake == 1 else "Off"
 ```
+<br><br/>
+실제, 차량 주행 데이터를 openstreetMap에서 추출하여 해당 지도에서 carla simulator를 보여주기 위해 osm파일을 xodr로 변환하고, 적용합니다. osm_to_xodr.py과 config.py, config_util.py에서 구현하였고, 차량은 테슬라로 설정하였습니다.
 <br>
 ### 실제 지도를 calra simulator에 맞게 변환하는 방법은 다음과 같습니다.
 
