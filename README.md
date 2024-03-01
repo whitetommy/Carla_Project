@@ -175,6 +175,49 @@ print("Carla Coordinates(x,y,z):", carla_coordinates)
 ```
 <br><br/>
 실제, 차량 주행 데이터를 openstreetMap에서 추출하여 해당 지도에서 carla simulator를 보여주기 위해 osm파일을 xodr로 변환하고, 적용합니다. osm_to_xodr.py과 config.py, config_util.py에서 구현하였고, 차량은 테슬라로 설정하였습니다.
+
+<br><br/>
+situation.py 에서 급발진에 대한 로직을 추가하였습니다. brake 는 밟았는데, 차량 문제로 인하여 rpm이 비정상적으로 올라가서, speed가 줄어들지 않는 로직을 추가하였습니다. 
+```
+def simulate_sudden_unintended_acceleration(vehicle, brake_status):
+    """
+    Simulates a sudden unintended acceleration scenario where the vehicle accelerates
+    while the brake is supposedly engaged.
+    """
+    # Forcefully increase throttle and RPM while keeping the brake engaged
+    throttle = 1.0  # Max throttle
+    rpm = 5000  # High RPM to simulate acceleration
+    brake = brake_status  # Keep the brake status as received
+
+    control = carla.VehicleControl(throttle=throttle, steer=0.0, brake=brake)
+    vehicle.apply_control(control)
+
+    # set red light of brake in the sua situaiton.
+    vehicle.set_light_state(carla.VehicleLightState(carla.VehicleLightState.Brake))
+
+    # Update visual feedback or print statement to indicate SUA is happening
+    global str  # Use the global variable to update brake status
+    str = "SUA Active!"  # Update the text to indicate SUA
+    print("Sudden Unintended Acceleration is simulated!")
+```
+<br><br/>
+main.py 에서 급발진 트리거 확률은 1퍼센트로 설정하고, 급발진이 발생하면 차량 브레이크 등이 들어오게 설정하였습니다. 이러한 상황을 멈출 수 있는 확률은 0.05퍼센트로 설정하였습니다.
+```
+# Randomly trigger SUA
+                if random.random() < 0.01 and not sua_active:  # 1% chance to trigger SUA, ensuring it's not already active
+                    simulate_sudden_unintended_acceleration(vehicle, brake)
+                    sua_active = True  # Set SUA flag to active
+                elif sua_active:
+                    # Keep applying SUA for a few seconds or based on some condition
+                    simulate_sudden_unintended_acceleration(vehicle, brake)
+                    # Condition to stop SUA, e.g., after some time or event
+                    if random.random() < 0.005:  # 0.5% chance to stop SUA
+                        sua_active = False
+                else:
+                    control_vehicle(vehicle, rpm, speed, brake, steer)  # Normal vehicle control
+                    # Ensure the global 'str' variable is correctly showing brake status
+                    str = "On" if brake == 1 else "Off"
+```
 <br>
 ### 실제 지도를 calra simulator에 맞게 변환하는 방법은 다음과 같습니다.
 
