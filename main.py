@@ -16,7 +16,6 @@ from carla_utils import connect_to_carla, get_blueprint_library, find_vehicle_bl
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
 from data_utils import read_columns_from_csv, geo_to_carla, calculate_steer_angle, calculate_yaw_from_gps
 from config_util import generate_xodr_map, set_spectator_location
-from situation import simulate_sudden_unintended_acceleration
 
 IM_WIDTH = 640  # Camera width
 IM_HEIGHT = 480 # Camera height
@@ -57,17 +56,20 @@ def control_vehicle(vehicle, rpm, speed, brake, steer):
 
 if __name__ == "__main__":
     actor_list = []
-    sua_active = False  # sudden unintended acceleration flag
 
     try:
         client = connect_to_carla('localhost', 2000)
-        world = generate_xodr_map(client, XODR_PATH) # Carla Map 
+        # world = generate_xodr_map(client, XODR_PATH) # Carla Map 
+        world = client.load_world('Town05')
         set_spectator_location(world)
-        blueprint_library = get_blueprint_library(world) 
 
-        vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
+        # 차량 스폰 포인트 선택
         spawn_point = get_spawn_point(world)
-        spawn_point = carla.Transform(carla.Location(x=7456, y=-2511, z=194), carla.Rotation(yaw = 55))
+
+        blueprint_library = get_blueprint_library(world)
+        vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
+        
+        spawn_point = carla.Transform(carla.Location(x=-107, y=95, z=1))
 
         vehicle = spawn_actor(world, vehicle_bp, spawn_point)
         actor_list.append(vehicle)
@@ -100,34 +102,20 @@ if __name__ == "__main__":
 
                 car_position = vehicle.get_location()
                 carla_coordinates = (car_position.x, car_position.y, car_position.z)
-                print("Carla Coordinates(x,y,z):", carla_coordinates)
-
-                car_position = geo_to_carla(lon, lat)
-                target_position = geo_to_carla(nextLon, nextLat)
-                car_orientation = calculate_yaw_from_gps(lon, lat, nextLon, nextLat)
-
-                steer = calculate_steer_angle(car_position, car_orientation, target_position)
-
                 if brake == 1:
                     str = "On"
                 else :
                     str = "Off"
-                print(f"brake_status : {str}")
+                print("Carla (x,y,z):", carla_coordinates, f"brake_status : {str}")
 
-                # Randomly trigger SUA
-                if random.random() < 0.01 and not sua_active:  # 1% chance to trigger SUA, ensuring it's not already active
-                    simulate_sudden_unintended_acceleration(vehicle, brake)
-                    sua_active = True  # Set SUA flag to active
-                elif sua_active:
-                    # Keep applying SUA for a few seconds or based on some condition
-                    simulate_sudden_unintended_acceleration(vehicle, brake)
-                    # Condition to stop SUA, e.g., after some time or event
-                    if random.random() < 0.005:  # 0.5% chance to stop SUA
-                        sua_active = False
-                else:
-                    control_vehicle(vehicle, rpm, speed, brake, steer)  # Normal vehicle control
-                    # Ensure the global 'str' variable is correctly showing brake status
-                    str = "On" if brake == 1 else "Off"
+                # #steer
+                # car_position = geo_to_carla(lon, lat)
+                # target_position = geo_to_carla(nextLon, nextLat)
+                # car_orientation = calculate_yaw_from_gps(lon, lat, nextLon, nextLat)
+                # steer = calculate_steer_angle(car_position, car_orientation, target_position)
+
+                steer = 0
+                control_vehicle(vehicle, rpm, speed, brake, steer)  # Normal vehicle control
                 time.sleep(1)
 
     finally:

@@ -13,9 +13,9 @@ except IndexError:
 import carla
 
 # Got the carla location of spectator from get location method
-INIT_SPECT_X = 7456
-INIT_SPECT_Y = -2511
-INIT_SPECT_Z = 194
+INIT_SPECT_X = -114
+INIT_SPECT_Y = 95
+INIT_SPECT_Z = 3
 
 def generate_xodr_map(client, xodr_path):
     if os.path.exists(xodr_path):
@@ -45,4 +45,4 @@ def generate_xodr_map(client, xodr_path):
 def set_spectator_location(world):
     spectator = world.get_spectator()
     location = carla.Location(x = INIT_SPECT_X, y = INIT_SPECT_Y, z = INIT_SPECT_Z)
-    spectator.set_transform(carla.Transform(location, carla.Rotation()))
+    spectator.set_transform(carla.Transform(location))
