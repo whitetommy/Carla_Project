@@ -28,7 +28,7 @@ column_names = ['speed', 'rpm', 'brake', 'lon', 'timestamp', 'lat']
 columns_data = read_columns_from_csv(data_path, column_names)
 ```
 <br><br/>
-csv로부터 한 행을 읽는 로직 구현하였습니다.
+csv로부터 한 행을 읽는 로직입니다.
 ```
 #data_utils.py
 def read_columns_from_csv(file_path, column_names):
@@ -114,7 +114,7 @@ else :
 print(f"brake_status : {str}")
 ```
 <br><br/>
-차량의 좌,우 회전에 대한 정보를 담고 있는 steer 값을 계산하는 로직을 두 위도,경도(x,y) 간의 방향 벡터를 이용하여 로직을 구현하였습니다.
+차량의 좌,우 회전에 대한 정보를 담고 있는 steer 값을 계산하는 로직을 두 위도,경도(x,y) 간의 방향 벡터를 이용하여 구현한 로직입니다.
 ```
 #main.py
 if columns_data:
@@ -136,7 +136,7 @@ car_orientation = calculate_yaw_from_gps(lon, lat, nextLon, nextLat)
 steer = calculate_steer_angle(car_position, car_orientation, target_position)
 ```
 <br><br/>
-data_utils.py 에서 steer의 각도를 계산하는 로직을 구현하였습니다.
+data_utils.py 에서 steer의 각도를 계산하는 로직입니다.
 ```
 def calculate_steer_angle(car_position, car_orientation, target_position):
     """
@@ -174,7 +174,7 @@ carla_coordinates = (car_position.x, car_position.y, car_position.z)
 print("Carla Coordinates(x,y,z):", carla_coordinates)
 ```
 <br><br/>
-situation.py 에서 급발진에 대한 로직을 추가하였습니다. brake 는 밟았는데, 차량 문제로 인하여 rpm이 비정상적으로 올라가서, speed가 줄어들지 않는 로직을 추가하였습니다. 
+situation.py 에서 급발진에 대한 로직을 추가하였습니다. brake 는 밟았는데, 차량 문제로 인하여 rpm이 비정상적으로 올라가서, speed가 줄어들지 않는 로직입니다.
 ```
 def simulate_sudden_unintended_acceleration(vehicle, brake_status):
     """
@@ -198,7 +198,7 @@ def simulate_sudden_unintended_acceleration(vehicle, brake_status):
     print("Sudden Unintended Acceleration is simulated!")
 ```
 <br><br/>
-main.py 에서 급발진 트리거 확률은 1퍼센트로 설정하고, 급발진이 발생하면 차량 브레이크 등이 들어오게 설정하였습니다. 이러한 상황을 멈출 수 있는 확률은 0.05퍼센트로 설정하였습니다.
+main.py 에서 급발진 트리거 확률은 1퍼센트로 설정하고, 급발진이 발생하면 차량 브레이크 등이 들어오게 설정하였습니다. 이러한 상황을 멈출 수 있는 확률은 0.05퍼센트로 임의로 설정한 값 입니다.
 ```
 # Randomly trigger SUA
                 if random.random() < 0.01 and not sua_active:  # 1% chance to trigger SUA, ensuring it's not already active
@@ -216,7 +216,7 @@ main.py 에서 급발진 트리거 확률은 1퍼센트로 설정하고, 급발�
                     str = "On" if brake == 1 else "Off"
 ```
 <br><br/>
-실제, 차량 주행 데이터를 openstreetMap에서 추출하여 해당 지도에서 carla simulator를 보여주기 위해 osm파일을 xodr로 변환하고, 적용합니다. osm_to_xodr.py과 config.py, config_util.py에서 구현하였고, 차량은 테슬라로 설정하였습니다.
+실제, 차량 주행 데이터를 openstreetMap에서 추출하여 해당 지도에서 carla simulator를 보여주기 위해 osm파일을 xodr로 변환하고, 적용합니다. osm_to_xodr.py과 config.py, config_util.py에서 구현하였고, 테슬라는 임의로 설정된 차량입니다.
 <br>
 ### 실제 지도를 calra simulator에 맞게 변환하는 방법은 다음과 같습니다.
 
