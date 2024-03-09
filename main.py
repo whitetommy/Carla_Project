@@ -1,7 +1,6 @@
 # main.py
 import time, sys, glob, os, cv2
 import numpy as np
-import random
 
 try:
     sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
@@ -16,6 +15,7 @@ from carla_utils import connect_to_carla, get_blueprint_library, find_vehicle_bl
 from sensor_utils import create_camera_blueprint, spawn_camera_sensor
 from data_utils import read_columns_from_csv, geo_to_carla, calculate_steer_angle, calculate_yaw_from_gps
 from config_util import generate_xodr_map, set_spectator_location
+from controls_feedback import update_graphs
 
 IM_WIDTH = 640  # Camera width
 IM_HEIGHT = 480 # Camera height
@@ -116,6 +116,8 @@ if __name__ == "__main__":
 
                 steer = 0
                 control_vehicle(vehicle, rpm, speed, brake, steer)  # Normal vehicle control
+
+                update_graphs(speed, brake, steer, rpm) # show that data in graph
                 time.sleep(1)
 
     finally:
