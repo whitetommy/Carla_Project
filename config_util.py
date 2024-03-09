@@ -13,9 +13,9 @@ except IndexError:
 import carla
 
 # Got the carla location of spectator from get location method
-INIT_SPECT_X = 7456
-INIT_SPECT_Y = -2511
-INIT_SPECT_Z = 194
+INIT_SPECT_X = -114
+INIT_SPECT_Y = 95
+INIT_SPECT_Z = 3
 
 def generate_xodr_map(client, xodr_path):
     if os.path.exists(xodr_path):
