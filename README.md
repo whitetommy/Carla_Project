@@ -250,27 +250,26 @@ def generate_xodr_map(client, xodr_path):
 ```
 변환하는 과정에서 건물, 신호체계와 같은 도구들이 반영이 되지 않고 도로의 틀만 포현되는 문제점이 있어서 시뮬레이션을 할 때는 town05 에서 일자맵을 이용하여 주행을 확인해보았습니다. 추가로 아래 코드에서 설정한 spawn point와 spectator의 좌표는 일자맵의 특정 위치로 설정한 좌표입니다.
 ```
-    # main.py
-     client = connect_to_carla('localhost', 2000)
-     world = client.load_world('Town05')
-     set_spectator_location(world)
+# main.py
+client = connect_to_carla('localhost', 2000)
+world = client.load_world('Town05')
+set_spectator_location(world)
+spawn_point = get_spawn_point(world)
 
-     spawn_point = get_spawn_point(world)
-
-     blueprint_library = get_blueprint_library(world)
-     vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
-     spawn_point = carla.Transform(carla.Location(x=-107, y=95, z=1))
+blueprint_library = get_blueprint_library(world)
+vehicle_bp = find_vehicle_blueprint(blueprint_library, 'vehicle.tesla.model3')
+spawn_point = carla.Transform(carla.Location(x=-107, y=95, z=1))
 ```
 ```
-    # config_util.py
+# config_util.py
 
-    # Got the carla location of spectator from get location method
-    INIT_SPECT_X = -114
-    INIT_SPECT_Y = 95
-    INIT_SPECT_Z = 3
+# Got the carla location of spectator from get location method
+INIT_SPECT_X = -114
+INIT_SPECT_Y = 95
+INIT_SPECT_Z = 3
 
-    def set_spectator_location(world):
-        spectator = world.get_spectator()
-        location = carla.Location(x = INIT_SPECT_X, y = INIT_SPECT_Y, z = INIT_SPECT_Z)
-        spectator.set_transform(carla.Transform(location))
+def set_spectator_location(world):
+    spectator = world.get_spectator()
+    location = carla.Location(x = INIT_SPECT_X, y = INIT_SPECT_Y, z = INIT_SPECT_Z)
+    spectator.set_transform(carla.Transform(location))
 ```
